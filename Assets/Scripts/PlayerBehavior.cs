@@ -14,27 +14,20 @@ public class PlayerBehavior : MonoBehaviour
     public float SlowDown;
     public LayerMask GroundMask;
     bool ableToMove = true;
-    bool left = false;
+    public bool Left = false;
     bool hitWall = false;
     bool rollTime = false;
     bool playBonk = false;
     bool onGround = false;
-    bool sameDive = false;
     public AudioClip Bonk;
-    public AudioClip Boom;
     Rigidbody2D rb;
     SpriteRenderer sr;
-    AudioSource aSource;
-
-    //Just for testing collision
-    bool collisionTest = true;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = rb.GetComponent<SpriteRenderer>();
-        aSource = GetComponent<AudioSource>();
 
     }
 
@@ -44,7 +37,7 @@ public class PlayerBehavior : MonoBehaviour
         onGround = Physics2D.BoxCast(transform.position, new Vector2(.4f, .5f), -90, Vector2.down, 1, GroundMask);
 
         //Checks which direction you should be facing
-        if (left)
+        if (Left)
         {
             sr.flipX = true;
         }
@@ -61,7 +54,7 @@ public class PlayerBehavior : MonoBehaviour
         //Checks if you should be rolling, then makes you roll.
         if (rollTime)
         {
-            if (left)
+            if (Left)
             {
                 transform.Rotate(0, 0, -360 * Time.deltaTime);
             }
@@ -89,9 +82,6 @@ public class PlayerBehavior : MonoBehaviour
             //Jump, jump, jump, jump
             if (Input.GetKeyDown(KeyCode.Space) && onGround)
             {
-                /*Vector2 newPosition = transform.position;
-                newPosition.y += Speed * Time.deltaTime;
-                transform.position = new Vector2(newPosition.x, newPosition.y);*/
                 rb.AddForce(transform.up * Jump);
 
                 if (rb.velocity.y > Jump)
@@ -103,7 +93,6 @@ public class PlayerBehavior : MonoBehaviour
             {
                 if (onGround)
                 {
-                    Invoke("VineBoom", 3);
                     //Ducking movement would happen here
                 }
                 else
@@ -111,7 +100,7 @@ public class PlayerBehavior : MonoBehaviour
                     //Mid-air diving
                     ableToMove = false;
                     playBonk = true;
-                    if (!left)
+                    if (!Left)
                     {
                         rb.AddRelativeForce(transform.right * DiveSpeed * 1);
                         transform.eulerAngles = Vector3.forward * -90;
@@ -128,7 +117,7 @@ public class PlayerBehavior : MonoBehaviour
         else
         {
             //Bonking 
-            if (left)
+            if (Left)
             {
                 hitWall = Physics2D.Raycast(transform.position, Vector2.left, 1f, GroundMask);
 
@@ -176,7 +165,7 @@ public class PlayerBehavior : MonoBehaviour
                 /*Vector2 newPosition = transform.position;
                 newPosition.x += Speed * Time.deltaTime;
                 transform.position = new Vector2(newPosition.x, newPosition.y);*/
-                left = false;
+                Left = false;
                 rb.AddRelativeForce(transform.right * Speed);
             }
             //Move left
@@ -185,7 +174,7 @@ public class PlayerBehavior : MonoBehaviour
                 /*Vector2 newPosition = transform.position;
                 newPosition.x -= Speed * Time.deltaTime;
                 transform.position = new Vector2(newPosition.x, newPosition.y);*/
-                left = true;
+                Left = true;
                 rb.AddRelativeForce(transform.right * -Speed);
             }
             else
@@ -205,19 +194,24 @@ public class PlayerBehavior : MonoBehaviour
         }
 
     }
-    void VineBoom()
+    void NextCar()
     {
-        aSource.clip = Boom;
-        aSource.volume = .25f;
-        aSource.Play();
+        transform.position = new Vector2(transform.position.x + 10, transform.position.y);
+        this.enabled = true;
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collisionTest)
-        { 
-            Debug.Log("Yep, collision works.");
-            collisionTest = false;
-        }
 
     }
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Finish")
+        {
+            
+            Invoke("NextCar", 2);
+            rb.velocity = Vector2.zero;
+            this.enabled = false;
+        }
+    }
+
 }
