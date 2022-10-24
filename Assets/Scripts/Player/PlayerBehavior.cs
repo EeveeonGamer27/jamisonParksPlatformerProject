@@ -20,15 +20,17 @@ public class PlayerBehavior : MonoBehaviour
     bool playBonk = false;
     bool onGround = false;
     public AudioClip Bonk;
+    public GameObject Screen;
     Rigidbody2D rb;
     SpriteRenderer sr;
+    GameController controller;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = rb.GetComponent<SpriteRenderer>();
-
+        controller = GameObject.Find("GameController").GetComponent<GameController>();
     }
 
     // Update is called once per frame
@@ -44,6 +46,14 @@ public class PlayerBehavior : MonoBehaviour
         else
         {
             sr.flipX = false;
+        }
+        //Reset player in car
+        if (Input.GetKey(KeyCode.R))
+        {
+            Screen.GetComponent<Animator>().SetBool("Blacked Out", true);
+            Invoke("CarStart", 1);
+            rb.velocity = Vector2.zero;
+            this.enabled = false;
         }
         //BONK
         if (playBonk && hitWall)
@@ -66,6 +76,7 @@ public class PlayerBehavior : MonoBehaviour
         //Re-enables movement if you have just dove
         if (onGround)
         {
+            GetComponent<Animator>().speed = 1;
             playBonk = false;
             if (rollTime)
             {
@@ -75,6 +86,10 @@ public class PlayerBehavior : MonoBehaviour
             CancelInvoke("StopDiving");
             transform.eulerAngles = Vector3.forward * 0;
         }
+        else
+        {
+                GetComponent<Animator>().speed = 0;
+        }
 
         //Movement
         if (ableToMove)
@@ -83,6 +98,7 @@ public class PlayerBehavior : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space) && onGround)
             {
                 rb.AddForce(transform.up * Jump);
+
 
                 if (rb.velocity.y > Jump)
                 {
@@ -194,9 +210,23 @@ public class PlayerBehavior : MonoBehaviour
         }
 
     }
-    void NextCar()
+    void CarStart()
     {
-        transform.position = new Vector2(transform.position.x + 10, transform.position.y);
+        Screen.GetComponent<Animator>().SetBool("Blacked Out", false);
+        switch (controller.CurrentCar)
+        {
+            case 1:
+                transform.position = new Vector2(0, -2);
+                break;
+            case 2:
+                transform.position = new Vector2(72, -2);
+                break;
+            default:
+                transform.position = new Vector2(0, -2);
+                break;
+
+        }
+        
         this.enabled = true;
     }
     private void OnCollisionEnter2D(Collision2D collision)
@@ -205,10 +235,12 @@ public class PlayerBehavior : MonoBehaviour
     }
     public void OnTriggerEnter2D(Collider2D collision)
     {
+        //Takes you to the next car
         if (collision.tag == "Finish")
         {
-            
-            Invoke("NextCar", 2);
+            Screen.GetComponent<Animator>().SetBool("Blacked Out", true);
+            Invoke("CarStart", 1);
+            controller.CurrentCar = controller.CurrentCar + 1;
             rb.velocity = Vector2.zero;
             this.enabled = false;
         }

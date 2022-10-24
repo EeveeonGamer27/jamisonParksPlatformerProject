@@ -9,7 +9,7 @@ public class ButtonBehavior : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -17,7 +17,7 @@ public class ButtonBehavior : MonoBehaviour
     {
         if (Pressed)
         {
-            CancelInvoke("Unpress");
+            GetComponent<Animator>().SetTrigger("Pressing");
             Invoke("Unpress", 5);
         }
     }

@@ -7,11 +7,11 @@ public class ButtonDoor : MonoBehaviour
 {
     public ButtonBehavior button;
     bool rise = false;
-    bool lower = false;
+    Vector2 startingPosition;
     // Start is called before the first frame update
     void Start()
     {
-        
+        startingPosition = transform.position;
     }
 
     // Update is called once per frame
@@ -20,33 +20,22 @@ public class ButtonDoor : MonoBehaviour
         if (button.Pressed)
         {
             rise = true;
-            Invoke("RiseEnd", 3);
-            Invoke("Lower", 5);
-            Invoke("LowerEnd", 11);
         }
-        if (rise)
+        else
+        {
+            rise = false;
+        }
+        if (rise && transform.position.y < startingPosition.y + 8)
         {
             Vector2 newPosition = transform.position;
-            newPosition.y += 1 * Time.deltaTime;
+            newPosition.y += 1.5f * Time.deltaTime;
             transform.position = new Vector2(newPosition.x, newPosition.y);
         }
-        else if (lower)
+        else if (transform.position.y > startingPosition.y)
         {
             Vector2 newPosition = transform.position;
-            newPosition.y -= 0.5f * Time.deltaTime;
+            newPosition.y -= .75f * Time.deltaTime;
             transform.position = new Vector2(newPosition.x, newPosition.y);
         }
-    }
-    void Lower()
-    {
-        lower = true;
-    }
-    void RiseEnd()
-    {
-        rise = false;
-    }
-    void LowerEnd()
-    {
-        lower = false;
     }
 }
