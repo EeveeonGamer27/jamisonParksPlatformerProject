@@ -13,10 +13,12 @@ public class GunBehavior : MonoBehaviour
     GameObject spawnedBullet;
     PlayerBehavior player;
     SpriteRenderer sr;
+    GameController controller;
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.Find("Eeveeon").GetComponent<PlayerBehavior>();
+        controller = GameObject.Find("GameController").GetComponent<GameController>();
         sr = GetComponent<SpriteRenderer>();
     }
 

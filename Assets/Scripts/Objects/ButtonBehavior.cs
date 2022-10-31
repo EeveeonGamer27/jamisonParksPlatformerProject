@@ -6,6 +6,8 @@ using UnityEngine;
 public class ButtonBehavior : MonoBehaviour
 {
     public bool Pressed = false;
+    bool pressing = true;
+    public int TimeHeldDown = 5;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,10 +17,11 @@ public class ButtonBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Pressed)
+        if (Pressed && pressing)
         {
             GetComponent<Animator>().SetTrigger("Pressing");
-            Invoke("Unpress", 5);
+            Invoke("Unpress", TimeHeldDown);
+            pressing = false;
         }
     }
     private void OnCollisionEnter2D(Collision2D collision)
@@ -35,5 +38,6 @@ public class ButtonBehavior : MonoBehaviour
     void Unpress()
     {
         Pressed = false;
+        pressing = true;
     }
 }

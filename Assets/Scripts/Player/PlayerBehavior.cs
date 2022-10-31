@@ -2,6 +2,7 @@ using Newtonsoft.Json.Bson;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.Presets;
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 using static UnityEngine.UI.Image;
@@ -13,17 +14,22 @@ public class PlayerBehavior : MonoBehaviour
     public float DiveSpeed;
     public float SlowDown;
     public LayerMask GroundMask;
+    public LayerMask DespairMask;
     bool ableToMove = true;
     public bool Left = false;
+    public bool DespairMode = false;
     bool hitWall = false;
     bool rollTime = false;
     bool playBonk = false;
     bool onGround = false;
+    bool despairCooldown = true;
     public AudioClip Bonk;
     public GameObject Screen;
+    public GameObject Despair;
     Rigidbody2D rb;
     SpriteRenderer sr;
     GameController controller;
+    TextKeeper textUpdate;
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +37,9 @@ public class PlayerBehavior : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sr = rb.GetComponent<SpriteRenderer>();
         controller = GameObject.Find("GameController").GetComponent<GameController>();
+        textUpdate = GameObject.Find("CameraController").GetComponent<TextKeeper>();
+        Despair = GameObject.Find("Despair");
+        CarStart();
     }
 
     // Update is called once per frame
@@ -52,6 +61,7 @@ public class PlayerBehavior : MonoBehaviour
         {
             Screen.GetComponent<Animator>().SetBool("Blacked Out", true);
             Invoke("CarStart", 1);
+            textUpdate.TimerReset();
             rb.velocity = Vector2.zero;
             this.enabled = false;
         }
@@ -88,7 +98,23 @@ public class PlayerBehavior : MonoBehaviour
         }
         else
         {
+        //Despair Mode
                 GetComponent<Animator>().speed = 0;
+                DespairMode = Physics2D.Raycast(transform.position, Vector2.up, 1f, DespairMask)/*.transform.gameObject*/;
+            if (DespairMode && despairCooldown)
+            {
+                Vector2 HoldingOn;
+                HoldingOn.x = Despair.transform.position.x - 2;
+                HoldingOn.y = Despair.transform.position.y - 3;
+                transform.position = HoldingOn;
+                ableToMove = false;
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    DespairMode = false;
+                    despairCooldown = false;
+                    Invoke("CoolingOff", 1);
+                }
+            }
         }
 
         //Movement
@@ -143,6 +169,8 @@ public class PlayerBehavior : MonoBehaviour
                     rb.AddRelativeForce(transform.right * DiveSpeed / -4);
                     transform.eulerAngles = Vector3.forward * -90;
                     rollTime = true;
+                    GetComponent<Animator>().SetTrigger("Bonked");
+                    GetComponent<Animator>().speed = 1;
                     Invoke("StopDiving", 5);
                 }
             }
@@ -156,6 +184,8 @@ public class PlayerBehavior : MonoBehaviour
                     rb.AddRelativeForce(transform.right * DiveSpeed / 4);
                     transform.eulerAngles = Vector3.forward * 90;
                     rollTime = true;
+                    GetComponent<Animator>().SetTrigger("Bonked");
+                    GetComponent<Animator>().speed = 1;
                     Invoke("StopDiving", 5);
                 }
             }
@@ -181,6 +211,7 @@ public class PlayerBehavior : MonoBehaviour
                 /*Vector2 newPosition = transform.position;
                 newPosition.x += Speed * Time.deltaTime;
                 transform.position = new Vector2(newPosition.x, newPosition.y);*/
+                Screen.GetComponent<Animator>().SetBool("Walking", true);
                 Left = false;
                 rb.AddRelativeForce(transform.right * Speed);
             }
@@ -190,6 +221,7 @@ public class PlayerBehavior : MonoBehaviour
                 /*Vector2 newPosition = transform.position;
                 newPosition.x -= Speed * Time.deltaTime;
                 transform.position = new Vector2(newPosition.x, newPosition.y);*/
+                GetComponent<Animator>().SetBool("Walking", true);
                 Left = true;
                 rb.AddRelativeForce(transform.right * -Speed);
             }
@@ -198,6 +230,7 @@ public class PlayerBehavior : MonoBehaviour
                 Vector3 slowing = rb.velocity;
                 slowing.x /= SlowDown;
                 rb.velocity = slowing;
+                Invoke("StopTalking", 0.5f);
             }
         }
     }
@@ -210,39 +243,84 @@ public class PlayerBehavior : MonoBehaviour
         }
 
     }
+    void StopTalking()
+    {
+        if (rb.velocity.x < 3)
+        {
+            GetComponent<Animator>().SetBool("Walking", false);
+        }
+    }
+    void CoolingOff()
+    {
+        despairCooldown = true;
+    }
     void CarStart()
     {
+        textUpdate.DeathScreenDeath();
         Screen.GetComponent<Animator>().SetBool("Blacked Out", false);
+        textUpdate.TimerReset();
         switch (controller.CurrentCar)
         {
+            case 0:
             case 1:
-                transform.position = new Vector2(0, -2);
+                controller.Gun = false;
+                transform.position = new Vector2(216, -2);
                 break;
             case 2:
-                transform.position = new Vector2(72, -2);
+                controller.Gun = false;
+                transform.position = new Vector2(292, -2);
+                break;
+            case 3:
+                controller.Gun = false;
+                transform.position = new Vector3(370, -2);
                 break;
             default:
-                transform.position = new Vector2(0, -2);
+                controller.Gun = true;
+                transform.position = new Vector2(72, -2);
                 break;
 
         }
         
         this.enabled = true;
     }
+
+    void ScreenDeath()
+    {
+        Screen.GetComponent<Animator>().SetBool("Blacked Out", true);
+        
+    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-
+        if (collision.gameObject.tag == "Enemy")
+        {
+            GetComponent<Animator>().SetTrigger("Damaged");
+            Invoke("ScreenDeath", 1);
+            textUpdate.Invoke("DeathScreen", 1);
+            rb.velocity = Vector2.zero;
+            this.enabled = false;
+        }
     }
     public void OnTriggerEnter2D(Collider2D collision)
     {
         //Takes you to the next car
         if (collision.tag == "Finish")
         {
-            Screen.GetComponent<Animator>().SetBool("Blacked Out", true);
+            ScreenDeath();
             Invoke("CarStart", 1);
             controller.CurrentCar = controller.CurrentCar + 1;
+            print(controller.CurrentCar);
+            textUpdate.LevelUpdate();
+            textUpdate.BestTime();
             rb.velocity = Vector2.zero;
             this.enabled = false;
+        }
+        if (collision.tag == "GunGiving")
+        {
+            controller.Gun = true;
+        }
+        if (collision.tag == "The End")
+        {
+            controller.Ending();
         }
     }
 

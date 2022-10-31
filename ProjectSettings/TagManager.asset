@@ -7,6 +7,11 @@ TagManager:
   - Ground
   - Bullet
   - Enemy
+  - Destroyer
+  - Timer
+  - Level Text
+  - GunGiving
+  - The End
   layers:
   - Default
   - TransparentFX
@@ -17,8 +22,8 @@ TagManager:
   - Player
   - Enemy
   - Bullet
-  - 
-  - 
+  - AntiBullet
+  - Despair
   - 
   - 
   - 
