@@ -1,14 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
     public static GameController Instance;
+
+    //Times to remember
+    public float BestTime1 = 999;
+    public float BestTime2 = 999;
+    public float BestTime3 = 999;
+    public float BestTime4 = 999;
+    public float BestTime5 = 999;
+    public float BestTime6 = 999;
+    public float BestTime7 = 999;
+    public float BestTime8 = 999;
+    public float BestTime = 99999;
+    public float TimerTime;
+
     public bool Paused = false;
-    public bool Gun = false;
-    GameObject gunArm;
+    public bool Segmented = false;
     public int CurrentCar;
     PlayerBehavior player;
 
@@ -24,21 +34,12 @@ public class GameController : MonoBehaviour
             Destroy(gameObject);
         }
         DontDestroyOnLoad(gameObject);
-        gunArm = GameObject.Find("Gun");
         QualitySettings.vSyncCount = 0;
-        CurrentCar = 1;
     }
 
     private void Update()
     {
-        if (Gun && gunArm != null)
-        {
-            gunArm.SetActive(true);
-        }
-        else if (gunArm != null)
-        {
-            gunArm.SetActive(false);
-        }
+
     }
 
     // Update is called once per frame
@@ -57,10 +58,9 @@ public class GameController : MonoBehaviour
             }
         }
         //Restart
-        if (Input.GetKey(KeyCode.L))
+        if (Input.GetKey(KeyCode.R))
         {
             SceneManager.LoadScene("BetaCars");
-            //player.Invoke("CarStart", 1);
         }
 
         //Escape
@@ -69,8 +69,14 @@ public class GameController : MonoBehaviour
             SceneManager.LoadScene("Menu");
         }
     }
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene("LevelMenu");
+        CurrentCar = 0;
+    }
     public void Ending()
     {
         SceneManager.LoadScene("The End");
+        CurrentCar = 0;
     }
 }

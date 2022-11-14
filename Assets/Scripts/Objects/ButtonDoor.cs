@@ -5,7 +5,7 @@ using static UnityEngine.GraphicsBuffer;
 
 public class ButtonDoor : MonoBehaviour
 {
-    public ButtonBehavior button;
+    public ButtonBehavior Button;
     bool rise = false;
     Vector2 startingPosition;
     // Start is called before the first frame update
@@ -17,7 +17,7 @@ public class ButtonDoor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (button.Pressed)
+        if (Button.Pressed)
         {
             rise = true;
         }

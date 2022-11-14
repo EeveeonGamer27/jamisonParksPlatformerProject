@@ -1,75 +1,56 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
 
 public class TextKeeper : MonoBehaviour
 {
-    public static TextKeeper Instance;
-
-    public float bestTime1 = 999;
-    public float bestTime2 = 999;
-    public float bestTime3 = 999;
-    public float bestTime4 = 999;
-    public float bestTime5 = 999;
-    float bestTime6 = 999;
-    float bestTime7 = 999;
-    float bestTime8 = 999;
-    float bestTime = 99999;
-    float timerTime;
     float minutes;
     float seconds;
     public TMP_Text TimerBox;
     public TMP_Text LevelBox;
     public TMP_Text Death;
     public TMP_Text Death2;
+    public TMP_Text GunTutorial;
     GameController controller;
+    PlayerBehavior player;
     // Start is called before the first frame update
     void Start()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-        DontDestroyOnLoad(gameObject);
-        if (Death.gameObject != null)
-        {
-            Death.gameObject.SetActive(false);
-            Death2.gameObject.SetActive(false);
-        }
+        Death.gameObject.SetActive(false);
+        Death2.gameObject.SetActive(false);
         Invoke("LevelUpdate", .01f);
         controller = GameObject.Find("GameController").GetComponent<GameController>();
+        player = GameObject.Find("Eeveeon").GetComponent<PlayerBehavior>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (TimerBox.gameObject != null)
-        {
-            timerTime += Time.deltaTime;
-            minutes = Mathf.FloorToInt(timerTime / 60);
-            seconds = Mathf.FloorToInt(timerTime % 60);
-            if (seconds < 10)
+        controller.TimerTime += Time.deltaTime;
+        minutes = Mathf.FloorToInt(controller.TimerTime / 60);
+        seconds = Mathf.FloorToInt(controller.TimerTime % 60);
+        if (seconds < 10)
             {
                 TimerBox.text = minutes + ":0" + seconds;
             }
-            else
+        else
             {
              TimerBox.text = minutes + ":" + seconds;
             }
-        }
-
-
+        if (player.Gun)
+            {
+            GunTutorial.gameObject.SetActive(true);
+            } 
+        else
+            {
+            GunTutorial.gameObject.SetActive(false);
+            }
     }
 
     public void TimerReset()
     {
-        timerTime = 0;
+        controller.TimerTime = 0;
     }
 
     public void LevelUpdate()
@@ -78,29 +59,32 @@ public class TextKeeper : MonoBehaviour
         {
             switch (controller.CurrentCar)
             {
-                case 1:
+                case 0:
                     LevelBox.text = "The Caboose";
                     break;
-                case 2:
+                case 1:
                     LevelBox.text = "Blocking Buttons";
                     break;
-                case 3:
+                case 2:
                     LevelBox.text = "Target Practice";
                     break;
-                case 4:
+                case 3:
                     LevelBox.text = "Follow that Bullet!";
                     break;
-                case 5:
-                    LevelBox.text = "Gloxing Day";
-                    break;
-                case 6:
-                    LevelBox.text = "Do Not Despair";
-                    break;
-                case 7:
+                case 4:
+                    //LevelBox.text = "Gloxing Day";
                     LevelBox.text = "The Beta Basics";
                     break;
-                case 8:
-                    LevelBox.text = "Locks and Keys";
+                case 5:
+                    //LevelBox.text = "Do Not Despair";
+                    LevelBox.text = "The Beta Bonus";
+                    break;
+                case 6:
+                    //LevelBox.text = "The Beta Basics";
+                    LevelBox.text = "";
+                    break;
+                case 7:
+                    LevelBox.text = "The Beta Bonus";
                     break;
                 default:
                     LevelBox.text = "Mysterious Traincar";
@@ -112,69 +96,69 @@ public class TextKeeper : MonoBehaviour
     {
         switch (controller.CurrentCar - 1)
         {
-            case 1:
-                if (timerTime < bestTime1)
+            case 0:
+                if (controller.TimerTime < controller.BestTime1)
                 {
-                    bestTime1 = timerTime;
+                    controller.BestTime1 = controller.TimerTime;
                 }
-                print(bestTime1);
+                print(controller.BestTime1);
+                break;
+            case 1:
+                if (controller.TimerTime < controller.BestTime2)
+                {
+                    controller.BestTime2 = controller.TimerTime;
+                }
+                print(controller.BestTime2);
                 break;
             case 2:
-                if (timerTime < bestTime2)
+                if (controller.TimerTime < controller.BestTime3)
                 {
-                    bestTime2 = timerTime;
+                    controller.BestTime3 = controller.TimerTime;
                 }
-                print(bestTime2);
+                print(controller.BestTime3);
                 break;
             case 3:
-                if (timerTime < bestTime3)
+                if (controller.TimerTime < controller.BestTime4)
                 {
-                    bestTime3 = timerTime;
+                    controller.BestTime4 = controller.TimerTime;
                 }
-                print(bestTime3);
+                print(controller.BestTime4);
                 break;
             case 4:
-                if (timerTime < bestTime4)
+                if (controller.TimerTime < controller.BestTime5)
                 {
-                    bestTime4 = timerTime;
+                    controller.BestTime5 = controller.TimerTime;
                 }
-                print(bestTime4);
+                print(controller.BestTime5);
                 break;
             case 5:
-                if (timerTime < bestTime5)
+                if (controller.TimerTime < controller.BestTime6)
                 {
-                    bestTime5 = timerTime;
+                    controller.BestTime6 = controller.TimerTime;
                 }
-                print(bestTime5);
+                print(controller.BestTime6);
                 break;
             case 6:
-                if (timerTime < bestTime6)
+                if (controller.TimerTime < controller.BestTime7)
                 {
-                    bestTime6 = timerTime;
+                    controller.BestTime7 = controller.TimerTime;
                 }
-                print(bestTime6);
+                print(controller.BestTime7);
                 break;
             case 7:
-                if (timerTime < bestTime7)
+                if (controller.TimerTime < controller.BestTime8)
                 {
-                    bestTime7 = timerTime;
+                    controller.BestTime8 = controller.TimerTime;
                 }
-                print(bestTime7);
+                print(controller.BestTime8);
                 break;
             case 8:
-                if (timerTime < bestTime8)
+                if (controller.BestTime1 + controller.BestTime2 + controller.BestTime3 + controller.BestTime4 + controller.BestTime5 + controller.BestTime6 + controller.BestTime7 + controller.BestTime8 < controller.BestTime)
                 {
-                    bestTime8 = timerTime;
+                    controller.BestTime = controller.BestTime1 + controller.BestTime2 + controller.BestTime3 + controller.BestTime4 + controller.BestTime5 + controller.BestTime6 + controller.BestTime7 + controller.BestTime8;
                 }
-                print(bestTime8);
-                break;
-            case 9:
-                if (bestTime1 + bestTime2 + bestTime3 + bestTime4 + bestTime5 + bestTime6 + bestTime7 + bestTime8 < bestTime)
-                {
-                    bestTime = bestTime1 + bestTime2 + bestTime3 + bestTime4 + bestTime5 + bestTime6 + bestTime7 + bestTime8;
-                }
-                bestTime = bestTime1 + bestTime2 + bestTime3 + bestTime4 + bestTime5 + bestTime6 + bestTime7 + bestTime8;
-                print(bestTime);
+                controller.BestTime = controller.BestTime1 + controller.BestTime2 + controller.BestTime3 + controller.BestTime4 + controller.BestTime5 + controller.BestTime6 + controller.BestTime7 + controller.BestTime8;
+                print(controller.BestTime);
                 break;
             default:
                 break;
@@ -183,20 +167,12 @@ public class TextKeeper : MonoBehaviour
     }
     public void DeathScreen()
     {
-        if (Death.gameObject != null)
-        {
         Death.gameObject.SetActive(true);
         Death2.gameObject.SetActive(true);
-        }
-
     }
     public void DeathScreenDeath()
     {
-        if (Death.gameObject != null)
-        {
         Death.gameObject.SetActive(false);
         Death2.gameObject.SetActive(false);
-        }
-
     }
 }

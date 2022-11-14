@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class GunBehavior : MonoBehaviour
@@ -8,7 +5,7 @@ public class GunBehavior : MonoBehaviour
     public GameObject Bullet;
     public GameObject BulletSpawner;
     public GameObject BulletSpawnerLeft;
-    private bool canFire = true;
+    bool canFire = true;
     Vector2 bulletPosition;
     GameObject spawnedBullet;
     PlayerBehavior player;

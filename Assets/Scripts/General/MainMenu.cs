@@ -12,7 +12,7 @@ public class MainMenu : MonoBehaviour
     }
     public void StartGame()
     {
-        SceneManager.LoadScene("BetaCars");
+        SceneManager.LoadScene("LevelMenu");
     }
     public void EndGame()
     {

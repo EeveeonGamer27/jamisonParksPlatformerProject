@@ -12,6 +12,8 @@ TagManager:
   - Level Text
   - GunGiving
   - The End
+  - Boxer
+  - Bouncer
   layers:
   - Default
   - TransparentFX
@@ -24,8 +26,8 @@ TagManager:
   - Bullet
   - AntiBullet
   - Despair
-  - 
-  - 
+  - Boxer
+  - Bouncer
   - 
   - 
   - 

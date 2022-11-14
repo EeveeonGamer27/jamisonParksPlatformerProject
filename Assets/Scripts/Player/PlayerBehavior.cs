@@ -1,11 +1,4 @@
-using Newtonsoft.Json.Bson;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Presets;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
-using static UnityEngine.UI.Image;
 
 public class PlayerBehavior : MonoBehaviour
 {
@@ -18,18 +11,25 @@ public class PlayerBehavior : MonoBehaviour
     bool ableToMove = true;
     public bool Left = false;
     public bool DespairMode = false;
+    bool jumping = false;
+    bool canJump = true;
     bool hitWall = false;
     bool rollTime = false;
     bool playBonk = false;
     bool onGround = false;
+    bool touchingGround = false;
     bool despairCooldown = true;
     public AudioClip Bonk;
     public GameObject Screen;
     public GameObject Despair;
+    public Sprite Ball;
     Rigidbody2D rb;
     SpriteRenderer sr;
     GameController controller;
     TextKeeper textUpdate;
+
+    public bool Gun = false;
+    GameObject gunArm;
 
     // Start is called before the first frame update
     void Start()
@@ -39,13 +39,30 @@ public class PlayerBehavior : MonoBehaviour
         controller = GameObject.Find("GameController").GetComponent<GameController>();
         textUpdate = GameObject.Find("CameraController").GetComponent<TextKeeper>();
         Despair = GameObject.Find("Despair");
+        gunArm = GameObject.Find("Gun");
+        Gun = false;
         CarStart();
     }
 
     // Update is called once per frame
     void Update()
     {
-        onGround = Physics2D.BoxCast(transform.position, new Vector2(.4f, .5f), -90, Vector2.down, 1, GroundMask);
+        if (Gun && gunArm != null)
+        {
+            gunArm.SetActive(true);
+        }
+        else if (!Gun && gunArm != null)
+        {
+            gunArm.SetActive(false);
+        }
+        if (touchingGround)
+        {
+            onGround = Physics2D.BoxCast(transform.position, new Vector2(.5f, .2f), 0, Vector2.down, 1, GroundMask);
+        }
+        else
+        {
+            onGround = false;
+        }
 
         //Checks which direction you should be facing
         if (Left)
@@ -55,15 +72,6 @@ public class PlayerBehavior : MonoBehaviour
         else
         {
             sr.flipX = false;
-        }
-        //Reset player in car
-        if (Input.GetKey(KeyCode.R))
-        {
-            Screen.GetComponent<Animator>().SetBool("Blacked Out", true);
-            Invoke("CarStart", 1);
-            textUpdate.TimerReset();
-            rb.velocity = Vector2.zero;
-            this.enabled = false;
         }
         //BONK
         if (playBonk && hitWall)
@@ -121,15 +129,10 @@ public class PlayerBehavior : MonoBehaviour
         if (ableToMove)
         {
             //Jump, jump, jump, jump
-            if (Input.GetKeyDown(KeyCode.Space) && onGround)
+            if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && onGround && canJump)
             {
-                rb.AddForce(transform.up * Jump);
-
-
-                if (rb.velocity.y > Jump)
-                {
-                    rb.velocity = rb.velocity.normalized * Jump;
-                }
+                jumping = true;
+                canJump = false;
             }
             if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
             {
@@ -159,7 +162,7 @@ public class PlayerBehavior : MonoBehaviour
         else
         {
             //Bonking 
-            if (Left)
+            if (Left && touchingGround)
             {
                 hitWall = Physics2D.Raycast(transform.position, Vector2.left, 1f, GroundMask);
 
@@ -174,7 +177,7 @@ public class PlayerBehavior : MonoBehaviour
                     Invoke("StopDiving", 5);
                 }
             }
-            else
+            else if (touchingGround)
             {
                 hitWall = Physics2D.Raycast(transform.position, Vector2.right, 1f, GroundMask);
 
@@ -189,7 +192,10 @@ public class PlayerBehavior : MonoBehaviour
                     Invoke("StopDiving", 5);
                 }
             }
+            else
+            {
 
+            }
         }
     }
     void FixedUpdate()
@@ -211,7 +217,7 @@ public class PlayerBehavior : MonoBehaviour
                 /*Vector2 newPosition = transform.position;
                 newPosition.x += Speed * Time.deltaTime;
                 transform.position = new Vector2(newPosition.x, newPosition.y);*/
-                Screen.GetComponent<Animator>().SetBool("Walking", true);
+                GetComponent<Animator>().SetBool("Walking", true);
                 Left = false;
                 rb.AddRelativeForce(transform.right * Speed);
             }
@@ -232,6 +238,18 @@ public class PlayerBehavior : MonoBehaviour
                 rb.velocity = slowing;
                 Invoke("StopTalking", 0.5f);
             }
+            //Jumping action
+            if (jumping)
+            {
+                rb.AddForce(transform.up * Jump);
+
+                if (rb.velocity.y > Jump)
+                {
+                    rb.velocity = rb.velocity.normalized * Jump;
+                }
+                jumping = false;
+                Invoke("StopJumping", 0.105f);
+            }
         }
     }
     void StopDiving()
@@ -245,10 +263,15 @@ public class PlayerBehavior : MonoBehaviour
     }
     void StopTalking()
     {
-        if (rb.velocity.x < 3)
+        if (Mathf.Abs(rb.velocity.x) < 3)
         {
             GetComponent<Animator>().SetBool("Walking", false);
         }
+    }
+
+    void StopJumping()
+    {
+        canJump = true;
     }
     void CoolingOff()
     {
@@ -259,23 +282,44 @@ public class PlayerBehavior : MonoBehaviour
         textUpdate.DeathScreenDeath();
         Screen.GetComponent<Animator>().SetBool("Blacked Out", false);
         textUpdate.TimerReset();
+        gunArm.SetActive(false);
         switch (controller.CurrentCar)
         {
             case 0:
-            case 1:
-                controller.Gun = false;
+                Gun = false;
+                GetComponent<Animator>().SetBool("Gunless", true);
                 transform.position = new Vector2(216, -2);
+                //transform.position = new Vector2(370, -2);
+                //transform.position = new Vector2(424, -2);
                 break;
-            case 2:
-                controller.Gun = false;
+            case 1:
+                Gun = false;
+                GetComponent<Animator>().SetBool("Gunless", true);
                 transform.position = new Vector2(292, -2);
                 break;
+            case 2:
+                Gun = false;
+                GetComponent<Animator>().SetBool("Gunless", true);
+                transform.position = new Vector2(370, -2);
+                break;
             case 3:
-                controller.Gun = false;
-                transform.position = new Vector3(370, -2);
+                Gun = true;
+                GetComponent<Animator>().SetBool("Gunless", false);
+                transform.position = new Vector2(424, -2);
+                break;
+            case 4:
+                Gun = false;
+                GetComponent<Animator>().SetBool("Gunless", true);
+                transform.position = new Vector2(0, -2);
+                break;
+            case 5:
+                Gun = true;
+                GetComponent<Animator>().SetBool("Gunless", false);
+                transform.position = new Vector2(72, -2);
                 break;
             default:
-                controller.Gun = true;
+                Gun = true;
+                GetComponent<Animator>().SetBool("Gunless", false);
                 transform.position = new Vector2(72, -2);
                 break;
 
@@ -287,8 +331,8 @@ public class PlayerBehavior : MonoBehaviour
     void ScreenDeath()
     {
         Screen.GetComponent<Animator>().SetBool("Blacked Out", true);
-        
     }
+    
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Enemy")
@@ -299,6 +343,14 @@ public class PlayerBehavior : MonoBehaviour
             rb.velocity = Vector2.zero;
             this.enabled = false;
         }
+        if (collision.gameObject.tag == "Ground" || collision.gameObject.tag == "Destroyer")
+        {
+            touchingGround = true;
+        }
+        else
+        {
+            touchingGround = false;
+        }
     }
     public void OnTriggerEnter2D(Collider2D collision)
     {
@@ -306,7 +358,13 @@ public class PlayerBehavior : MonoBehaviour
         if (collision.tag == "Finish")
         {
             ScreenDeath();
-            Invoke("CarStart", 1);
+            if (controller.Segmented)
+            {
+                controller.Invoke("BackToMenu", 1);
+            } else
+            {
+                Invoke("CarStart", 1);
+            }
             controller.CurrentCar = controller.CurrentCar + 1;
             print(controller.CurrentCar);
             textUpdate.LevelUpdate();
@@ -316,11 +374,20 @@ public class PlayerBehavior : MonoBehaviour
         }
         if (collision.tag == "GunGiving")
         {
-            controller.Gun = true;
+            Gun = true;
+            GetComponent<Animator>().SetBool("Gunless", false);
         }
         if (collision.tag == "The End")
         {
-            controller.Ending();
+            ScreenDeath();
+            controller.CurrentCar = controller.CurrentCar + 1;
+            print(controller.CurrentCar);
+            textUpdate.LevelUpdate();
+            textUpdate.BestTime();
+            rb.velocity = Vector2.zero;
+            this.enabled = false;
+            textUpdate.BestTime();
+            controller.Invoke("Ending", 1);
         }
     }
 
