@@ -30,7 +30,11 @@ public class ButtonBehavior : MonoBehaviour
         {
             Pressed = true;
         }
-        if (collision.gameObject.tag == "Player")
+        else if (collision.gameObject.tag == "Player")
+        {
+            Pressed = true;
+        }
+        else if (collision.gameObject.tag == "Destroyer")
         {
             Pressed = true;
         }

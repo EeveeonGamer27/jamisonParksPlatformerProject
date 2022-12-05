@@ -6,6 +6,7 @@ public class BulletBehavior : MonoBehaviour
     public LayerMask GroundMask;
     private Rigidbody2D rb;
     SpriteRenderer sr;
+    public AudioClip Rip;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +29,7 @@ public class BulletBehavior : MonoBehaviour
     {
         if (collision.tag == "Enemy" || collision.tag == "Bouncer")
         {
+            AudioSource.PlayClipAtPoint(Rip, transform.position);
             Destroy(gameObject);
         }
     }

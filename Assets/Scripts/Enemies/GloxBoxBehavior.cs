@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GloxBoxBehavior : MonoBehaviour
 {
-    GameObject gox;
+    public GameObject gox;
     GloxBehavior goxcode;
     Rigidbody2D rb;
     SpriteRenderer sr;
@@ -12,11 +12,19 @@ public class GloxBoxBehavior : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        gox = GameObject.Find("GoxBox");
-        goxcode = GameObject.Find("GoxBox").GetComponent<GloxBehavior>();
+        goxcode = gox.GetComponent<GloxBehavior>();
         rb = GetComponent<Rigidbody2D>();
         sr = rb.GetComponent<SpriteRenderer>();
         Invoke("Death", .1f);
+        if (goxcode.XFlipped)
+        {
+            sr.flipX = true;
+        }
+        else
+        {
+            sr.flipX = false;
+        }
+        
     }
 
     // Update is called once per frame

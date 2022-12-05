@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 8849821765117052192}
   - component: {fileID: 8849821765117052199}
   - component: {fileID: 8849821765117052198}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BlueButtonDoor
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -146,4 +146,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b384a1945dce764d8159ebc7c18c93c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 0}
+  Button: {fileID: 0}

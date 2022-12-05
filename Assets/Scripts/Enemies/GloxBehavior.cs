@@ -2,17 +2,17 @@ using UnityEngine;
 
 public class GloxBehavior : MonoBehaviour
 {
-    GameObject goxLox;
+    public GameObject goxLox;
     Rigidbody2D rb;
     PlayerBehavior player;
     SpriteRenderer sr;
     public AudioClip Chaching;
     public float EnemySpeed;
+    public bool XFlipped = false;
     public bool BoxForm = false;
     // Start is called before the first frame update
     void Awake()
     {
-        goxLox = GameObject.Find("GoxBoxLox");
         rb = GetComponent<Rigidbody2D>();
         sr = rb.GetComponent<SpriteRenderer>();
         player = GameObject.Find("Eeveeon").GetComponent<PlayerBehavior>();
@@ -32,6 +32,7 @@ public class GloxBehavior : MonoBehaviour
                 newPosition.x += EnemySpeed * Time.deltaTime;
                 transform.position = new Vector2(newPosition.x, newPosition.y);
                 sr.flipX = false;
+                XFlipped = false;
             }
             if (player.transform.position.x <= transform.position.x)
             {
@@ -39,6 +40,7 @@ public class GloxBehavior : MonoBehaviour
                 newPosition.x -= EnemySpeed * Time.deltaTime;
                 transform.position = new Vector2(newPosition.x, newPosition.y);
                 sr.flipX = true;
+                XFlipped = true;
             }
         }
 
@@ -55,9 +57,9 @@ public class GloxBehavior : MonoBehaviour
             {
                 rb.velocity = Vector2.zero;
                 AudioSource.PlayClipAtPoint(Chaching, Camera.main.transform.position);
-                Invoke("RipGox", 1);
-                Invoke("BecomeBox", 1.00001f);
-                GetComponent<Animator>().SetTrigger("Boxing");
+                Invoke("RipGox", 0.00001f);
+                Invoke("BecomeBox", 0.00002f);
+                goxLox.GetComponent<Animator>().SetTrigger("Boxing");
                 this.enabled = false;
             }
 

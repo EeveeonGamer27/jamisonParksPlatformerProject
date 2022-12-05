@@ -35,6 +35,14 @@ public class BlueButtonBehavior : MonoBehaviour
         {
             Pressed = true;
         }
+        else if (collision.gameObject.tag == "Enemy")
+        {
+            Pressed = true;
+        }
+        else
+        {
+            Pressed = false;
+        }
     }
     private void OnCollisionExit2D(Collision2D collision)
     {
@@ -47,6 +55,10 @@ public class BlueButtonBehavior : MonoBehaviour
             Pressed = false;
         }
         else if (collision.gameObject.tag == "Destroyer")
+        {
+            Pressed = false;
+        }
+        else if (collision.gameObject.tag == "Enemy")
         {
             Pressed = false;
         }

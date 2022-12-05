@@ -72,18 +72,12 @@ public class TextKeeper : MonoBehaviour
                     LevelBox.text = "Follow that Bullet!";
                     break;
                 case 4:
-                    //LevelBox.text = "Gloxing Day";
-                    LevelBox.text = "The Beta Basics";
+                    LevelBox.text = "Gloxing Day";
                     break;
                 case 5:
-                    //LevelBox.text = "Do Not Despair";
-                    LevelBox.text = "The Beta Bonus";
+                    LevelBox.text = "The Beta Basics";
                     break;
                 case 6:
-                    //LevelBox.text = "The Beta Basics";
-                    LevelBox.text = "";
-                    break;
-                case 7:
                     LevelBox.text = "The Beta Bonus";
                     break;
                 default:
@@ -97,68 +91,60 @@ public class TextKeeper : MonoBehaviour
         switch (controller.CurrentCar - 1)
         {
             case 0:
-                if (controller.TimerTime < controller.BestTime1)
+                if (controller.TimerTime < controller.BestTime1 || controller.BestTime1 == 0)
                 {
                     controller.BestTime1 = controller.TimerTime;
+                    PlayerPrefs.SetFloat("1", controller.TimerTime);
                 }
                 print(controller.BestTime1);
                 break;
             case 1:
-                if (controller.TimerTime < controller.BestTime2)
+                if (controller.TimerTime < controller.BestTime2 || controller.BestTime2 == 0)
                 {
                     controller.BestTime2 = controller.TimerTime;
+                    PlayerPrefs.SetFloat("2", controller.TimerTime);
                 }
                 print(controller.BestTime2);
                 break;
             case 2:
-                if (controller.TimerTime < controller.BestTime3)
+                if (controller.TimerTime < controller.BestTime3 || controller.BestTime3 == 0)
                 {
                     controller.BestTime3 = controller.TimerTime;
+                    PlayerPrefs.SetFloat("3", controller.TimerTime);
                 }
                 print(controller.BestTime3);
                 break;
             case 3:
-                if (controller.TimerTime < controller.BestTime4)
+                if (controller.TimerTime < controller.BestTime4 || controller.BestTime4 == 0)
                 {
                     controller.BestTime4 = controller.TimerTime;
+                    PlayerPrefs.SetFloat("4", controller.TimerTime);
                 }
                 print(controller.BestTime4);
                 break;
             case 4:
-                if (controller.TimerTime < controller.BestTime5)
+                if (controller.TimerTime < controller.BestTime5 || controller.BestTime5 == 0)
                 {
                     controller.BestTime5 = controller.TimerTime;
+                    PlayerPrefs.SetFloat("5", controller.TimerTime);
                 }
                 print(controller.BestTime5);
                 break;
             case 5:
-                if (controller.TimerTime < controller.BestTime6)
+                if (controller.TimerTime < controller.BestTime6 || controller.BestTime6 == 0)
                 {
                     controller.BestTime6 = controller.TimerTime;
+                    PlayerPrefs.SetFloat("6", controller.TimerTime);
                 }
                 print(controller.BestTime6);
                 break;
             case 6:
-                if (controller.TimerTime < controller.BestTime7)
+                if (controller.TimerTime < controller.BestTime7 || controller.BestTime7 == 0)
                 {
                     controller.BestTime7 = controller.TimerTime;
+                    PlayerPrefs.SetFloat("7", controller.TimerTime);
                 }
                 print(controller.BestTime7);
-                break;
-            case 7:
-                if (controller.TimerTime < controller.BestTime8)
-                {
-                    controller.BestTime8 = controller.TimerTime;
-                }
-                print(controller.BestTime8);
-                break;
-            case 8:
-                if (controller.BestTime1 + controller.BestTime2 + controller.BestTime3 + controller.BestTime4 + controller.BestTime5 + controller.BestTime6 + controller.BestTime7 + controller.BestTime8 < controller.BestTime)
-                {
-                    controller.BestTime = controller.BestTime1 + controller.BestTime2 + controller.BestTime3 + controller.BestTime4 + controller.BestTime5 + controller.BestTime6 + controller.BestTime7 + controller.BestTime8;
-                }
-                controller.BestTime = controller.BestTime1 + controller.BestTime2 + controller.BestTime3 + controller.BestTime4 + controller.BestTime5 + controller.BestTime6 + controller.BestTime7 + controller.BestTime8;
-                print(controller.BestTime);
                 break;
             default:
                 break;

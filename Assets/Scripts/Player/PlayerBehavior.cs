@@ -7,6 +7,7 @@ public class PlayerBehavior : MonoBehaviour
     public float DiveSpeed;
     public float SlowDown;
     public LayerMask GroundMask;
+    public LayerMask GirderMask;
     public LayerMask DespairMask;
     bool ableToMove = true;
     public bool Left = false;
@@ -18,8 +19,11 @@ public class PlayerBehavior : MonoBehaviour
     bool playBonk = false;
     bool onGround = false;
     bool touchingGround = false;
+    bool touchingGirder = false;
     bool despairCooldown = true;
     public AudioClip Bonk;
+    public AudioClip Whistle;
+    public AudioSource AudioSauce;
     public GameObject Screen;
     public GameObject Despair;
     public Sprite Ball;
@@ -27,9 +31,11 @@ public class PlayerBehavior : MonoBehaviour
     SpriteRenderer sr;
     GameController controller;
     TextKeeper textUpdate;
-
     public bool Gun = false;
     GameObject gunArm;
+    bool g = false;
+    bool u = false;
+    public bool N = false;
 
     // Start is called before the first frame update
     void Start()
@@ -40,14 +46,36 @@ public class PlayerBehavior : MonoBehaviour
         textUpdate = GameObject.Find("CameraController").GetComponent<TextKeeper>();
         Despair = GameObject.Find("Despair");
         gunArm = GameObject.Find("Gun");
+        AudioSauce = GetComponent<AudioSource>();
         Gun = false;
+        g = false;
+        u = false;
+        N = false;
         CarStart();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Gun && gunArm != null)
+        //GUN
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            g = true;
+        }
+        if (Input.GetKeyDown(KeyCode.U) && g)
+        {
+            u = true;
+        }
+        if (Input.GetKeyDown(KeyCode.N) && u)
+        {
+            N = true;
+            gunArm.SetActive(true);
+        }
+        if (gunArm != null && g && u && N)
+        {
+            controller.UsingGUN();
+        }
+        else if (Gun && gunArm != null)
         {
             gunArm.SetActive(true);
         }
@@ -59,6 +87,10 @@ public class PlayerBehavior : MonoBehaviour
         {
             onGround = Physics2D.BoxCast(transform.position, new Vector2(.5f, .2f), 0, Vector2.down, 1, GroundMask);
         }
+        /*else if (touchingGirder && !onGround)
+        {
+            onGround = Physics2D.BoxCast(transform.position, new Vector2(.5f, .2f), 0, Vector2.down, 1, GirderMask);
+        }*/
         else
         {
             onGround = false;
@@ -94,7 +126,7 @@ public class PlayerBehavior : MonoBehaviour
         //Re-enables movement if you have just dove
         if (onGround)
         {
-            GetComponent<Animator>().speed = 1;
+            GetComponent<Animator>().SetBool("Grounded", true);
             playBonk = false;
             if (rollTime)
             {
@@ -106,9 +138,10 @@ public class PlayerBehavior : MonoBehaviour
         }
         else
         {
-        //Despair Mode
-                GetComponent<Animator>().speed = 0;
-                DespairMode = Physics2D.Raycast(transform.position, Vector2.up, 1f, DespairMask)/*.transform.gameObject*/;
+            GetComponent<Animator>().SetBool("Grounded", false);
+            GetComponent<Animator>().SetTrigger("Jumping");
+            //Despair Mode
+            DespairMode = Physics2D.Raycast(transform.position, Vector2.up, 1f, DespairMask)/*.transform.gameObject*/;
             if (DespairMode && despairCooldown)
             {
                 Vector2 HoldingOn;
@@ -161,6 +194,13 @@ public class PlayerBehavior : MonoBehaviour
         }
         else
         {
+            //Cancel Dive
+            if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && !rollTime)
+            {
+                playBonk = false;
+                rb.velocity /= 2;
+                StopDiving();
+            }
             //Bonking 
             if (Left && touchingGround)
             {
@@ -173,7 +213,6 @@ public class PlayerBehavior : MonoBehaviour
                     transform.eulerAngles = Vector3.forward * -90;
                     rollTime = true;
                     GetComponent<Animator>().SetTrigger("Bonked");
-                    GetComponent<Animator>().speed = 1;
                     Invoke("StopDiving", 5);
                 }
             }
@@ -188,7 +227,6 @@ public class PlayerBehavior : MonoBehaviour
                     transform.eulerAngles = Vector3.forward * 90;
                     rollTime = true;
                     GetComponent<Animator>().SetTrigger("Bonked");
-                    GetComponent<Animator>().speed = 1;
                     Invoke("StopDiving", 5);
                 }
             }
@@ -211,8 +249,12 @@ public class PlayerBehavior : MonoBehaviour
         //Movement
         if (ableToMove)
         {
+            if ((Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) && (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)))
+            {
+                
+            }
             //Move right
-            if ((Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) && rb.velocity.x < 15)
+            else if ((Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) && rb.velocity.x < 15)
             {
                 /*Vector2 newPosition = transform.position;
                 newPosition.x += Speed * Time.deltaTime;
@@ -220,6 +262,10 @@ public class PlayerBehavior : MonoBehaviour
                 GetComponent<Animator>().SetBool("Walking", true);
                 Left = false;
                 rb.AddRelativeForce(transform.right * Speed);
+                if (rb.velocity.x < 3)
+                {
+                    rb.AddRelativeForce(transform.right * Speed);
+                }
             }
             //Move left
             else if ((Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) && rb.velocity.x > -15)
@@ -230,6 +276,10 @@ public class PlayerBehavior : MonoBehaviour
                 GetComponent<Animator>().SetBool("Walking", true);
                 Left = true;
                 rb.AddRelativeForce(transform.right * -Speed);
+                if (rb.velocity.x > -3)
+                {
+                    rb.AddRelativeForce(transform.right * -Speed);
+                }
             }
             else
             {
@@ -273,6 +323,10 @@ public class PlayerBehavior : MonoBehaviour
     {
         canJump = true;
     }
+    void WhistlingAlong()
+    {
+        AudioSource.PlayClipAtPoint(Whistle, Camera.main.transform.position);
+    }
     void CoolingOff()
     {
         despairCooldown = true;
@@ -283,6 +337,10 @@ public class PlayerBehavior : MonoBehaviour
         Screen.GetComponent<Animator>().SetBool("Blacked Out", false);
         textUpdate.TimerReset();
         gunArm.SetActive(false);
+        //AudioSource.PlayClipAtPoint(Whistle, Camera.main.transform.position);
+        //AudioSauce.PlayOneShot(Whistle);
+        Invoke("WhistlingAlong", 0.01f);
+        Invoke("WhistlingAlong", 0.51f);
         switch (controller.CurrentCar)
         {
             case 0:
@@ -291,6 +349,7 @@ public class PlayerBehavior : MonoBehaviour
                 transform.position = new Vector2(216, -2);
                 //transform.position = new Vector2(370, -2);
                 //transform.position = new Vector2(424, -2);
+                //transform.position = new Vector2(494, -2);
                 break;
             case 1:
                 Gun = false;
@@ -308,11 +367,16 @@ public class PlayerBehavior : MonoBehaviour
                 transform.position = new Vector2(424, -2);
                 break;
             case 4:
+                Gun = true;
+                GetComponent<Animator>().SetBool("Gunless", false);
+                transform.position = new Vector2(494, -2);
+                break;
+            case 5:
                 Gun = false;
                 GetComponent<Animator>().SetBool("Gunless", true);
                 transform.position = new Vector2(0, -2);
                 break;
-            case 5:
+            case 6:
                 Gun = true;
                 GetComponent<Animator>().SetBool("Gunless", false);
                 transform.position = new Vector2(72, -2);
@@ -343,7 +407,7 @@ public class PlayerBehavior : MonoBehaviour
             rb.velocity = Vector2.zero;
             this.enabled = false;
         }
-        if (collision.gameObject.tag == "Ground" || collision.gameObject.tag == "Destroyer")
+        if (collision.gameObject.tag == "Ground" || collision.gameObject.tag == "Destroyer" || collision.gameObject.tag == "Girder")
         {
             touchingGround = true;
         }
@@ -361,7 +425,8 @@ public class PlayerBehavior : MonoBehaviour
             if (controller.Segmented)
             {
                 controller.Invoke("BackToMenu", 1);
-            } else
+            }
+            else
             {
                 Invoke("CarStart", 1);
             }

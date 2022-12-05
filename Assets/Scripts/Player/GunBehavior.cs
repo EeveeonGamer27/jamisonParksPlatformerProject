@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.XR;
 
 public class GunBehavior : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class GunBehavior : MonoBehaviour
     PlayerBehavior player;
     SpriteRenderer sr;
     GameController controller;
+    public AudioClip Shot;
     // Start is called before the first frame update
     void Start()
     {
@@ -61,6 +63,7 @@ public class GunBehavior : MonoBehaviour
 
             Vector3 bulletRotation = transform.eulerAngles;
             spawnedBullet = Instantiate(Bullet, bulletPosition, Quaternion.Euler(bulletRotation));
+            AudioSource.PlayClipAtPoint(Shot, transform.position);
             canFire = false;
             Invoke("shootWait", 0.5f);
         }

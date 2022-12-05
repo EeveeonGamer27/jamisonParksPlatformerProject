@@ -13,7 +13,7 @@ public class LevelButtons : MonoBehaviour
     void Start()
     {
         controller = GameObject.Find("GameController").GetComponent<GameController>();
-        if (controller.CurrentCar != 0)
+        if (controller.CurrentCar != 0 && ContinueText.text != null)
         {
             ContinueText.text = "Continue";
         }
@@ -44,5 +44,11 @@ public class LevelButtons : MonoBehaviour
     public void LevelSelect()
     {
         SceneManager.LoadScene("LevelMenu");
+    }
+
+    public void SaveDataDelete()
+    {
+        PlayerPrefs.DeleteAll();
+        SceneManager.LoadScene("The End");
     }
 }
