@@ -87,15 +87,18 @@ public class PlayerBehavior : MonoBehaviour
         {
             onGround = Physics2D.BoxCast(transform.position, new Vector2(.5f, .2f), 0, Vector2.down, 1, GroundMask);
         }
-        /*else if (touchingGirder && !onGround)
-        {
-            onGround = Physics2D.BoxCast(transform.position, new Vector2(.5f, .2f), 0, Vector2.down, 1, GirderMask);
-        }*/
         else
         {
             onGround = false;
         }
-
+        if (rb.velocity.x > 0)
+        {
+            GetComponent<Animator>().SetBool("Falling", false);
+        }
+        else if (rb.velocity.x < 0)
+        {
+            GetComponent<Animator>().SetBool("Falling", true);
+        }
         //Checks which direction you should be facing
         if (Left)
         {
@@ -139,7 +142,6 @@ public class PlayerBehavior : MonoBehaviour
         else
         {
             GetComponent<Animator>().SetBool("Grounded", false);
-            GetComponent<Animator>().SetTrigger("Jumping");
             //Despair Mode
             DespairMode = Physics2D.Raycast(transform.position, Vector2.up, 1f, DespairMask)/*.transform.gameObject*/;
             if (DespairMode && despairCooldown)
@@ -166,6 +168,7 @@ public class PlayerBehavior : MonoBehaviour
             {
                 jumping = true;
                 canJump = false;
+                GetComponent<Animator>().SetTrigger("Jumping");
             }
             if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
             {
@@ -325,7 +328,7 @@ public class PlayerBehavior : MonoBehaviour
     }
     void WhistlingAlong()
     {
-        AudioSource.PlayClipAtPoint(Whistle, Camera.main.transform.position);
+        AudioSource.PlayClipAtPoint(Whistle, Camera.main.transform.position, 0.15f);
     }
     void CoolingOff()
     {
