@@ -19,6 +19,7 @@ public class PlayerBehavior : MonoBehaviour
     bool playBonk = false;
     bool onGround = false;
     bool touchingGround = false;
+    bool touchingGirder = false;
     bool despairCooldown = true;
     public AudioClip Bonk;
     public AudioClip Whistle;
