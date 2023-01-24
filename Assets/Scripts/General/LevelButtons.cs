@@ -45,6 +45,7 @@ public class LevelButtons : MonoBehaviour
     public void SaveDataDelete()
     {
         PlayerPrefs.DeleteAll();
+        Application.Quit();
         SceneManager.LoadScene("The End");
     }
 }
