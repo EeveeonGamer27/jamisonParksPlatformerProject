@@ -13,12 +13,16 @@ public class LevelButtons : MonoBehaviour
     void Start()
     {
         controller = GameObject.Find("GameController").GetComponent<GameController>();
+        if (controller.CurrentCar != 0 && ContinueText.text != null)
+        {
+            ContinueText.text = "Continue";
+        }
     }
 
     public void GameStart()
     {
         controller.Segmented = false;
-        SceneManager.LoadScene("Cutscene");
+        SceneManager.LoadScene("BetaCars");
     }
     public void LevelStart()
     {
